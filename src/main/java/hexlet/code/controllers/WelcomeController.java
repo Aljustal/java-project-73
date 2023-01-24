@@ -1,4 +1,4 @@
-package hexlet.code.controller;
+package hexlet.code.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class WelcomeController {
 
-    @GetMapping("/welcome")
-    public String root() {
+    @GetMapping("/")
+    public String welcome() {
+        System.out.println("Welcome to Spring");
         return "Welcome to Spring";
     }
 }
