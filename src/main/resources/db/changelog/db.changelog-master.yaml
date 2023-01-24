@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - logicalFilePath: db.changelog/db.changelog-master.yaml
+  - changeSet:
+      id: createTable-Users
+      author: aljustal
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    - primaryKey: true
+                    - nullable: false
+              - column:
+                  name: firstName
+                  type: varchar(50)
+              - column:
+                  name: lastName
+                  type: varchar(50)
+              - column:
+                  name: email
+                  type: varchar(50)
+              - column:
+                  name: password
+                  type: varchar(255)
+              - column:
+                  name: createdAt
+                  type: timestamp
