@@ -12,7 +12,7 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     - primaryKey: true
-                    - nullable: false
+#                    - nullable: false
               - column:
                   name: firstName
                   type: varchar(50)

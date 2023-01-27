@@ -5,18 +5,15 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
-import static javax.persistence.GenerationType.IDENTITY;
-import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
 @Getter
@@ -27,24 +24,28 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(name = "EMAIL", unique = true)
+
     private String email;
 
     @NotBlank
+    @Column(name="FIRSTNAME")
     private String firstName;
 
     @NotBlank
+    @Column(name="LASTNAME")
     private String lastName;
 
     @NotBlank
     @JsonIgnore
+    @Column(name="PASSWORD")
     private String password;
 
     @CreationTimestamp
-    @Column(name = "CREATED_AT", updatable = false)
+    @Column(name="CREATEDAT")
     private Date createdAt;
 
     public User(final Long id) {
