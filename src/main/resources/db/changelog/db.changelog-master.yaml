@@ -35,7 +35,7 @@ databaseChangeLog:
         - createSequence:
             cacheSize: 371717
             cycle: true
-            dataType: int
+            dataType: Long
             incrementBy: 1
             maxValue: 1000
             minValue: 1
