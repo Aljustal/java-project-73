@@ -1,0 +1,24 @@
+server:
+  port: ${PORT:5000}
+
+base-url: /api
+
+rollbar_token: 27d9e74871a04ed1b2edb0062656b928
+
+spring:
+  application:
+    name: taskManager
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog-master.xml
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  jpa:
+    hibernate:
+#      ddl-auto: update
+     ddl-auto: create-drop

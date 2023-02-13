@@ -1,14 +1,13 @@
 package hexlet.code.config.security;
+
+
 import hexlet.code.component.JWTHelper;
 
 import java.util.List;
 
 import hexlet.code.filter.JWTAuthenticationFilter;
 import hexlet.code.filter.JWTAuthorizationFilter;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -18,7 +17,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -26,10 +24,10 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-//import static hexlet.code.controllers.LabelController.LABEL_CONTROLLER_PATH;
-//import static hexlet.code.controllers.TaskController.TASK_CONTROLLER_PATH;
-//import static hexlet.code.controllers.TaskStatusController.TASK_STATUS_CONTROLLER_PATH;
-import static hexlet.code.controllers.UserController.USER_CONTROLLER_PATH;
+import static hexlet.code.controller.LabelController.LABEL_CONTROLLER_PATH;
+import static hexlet.code.controller.TaskController.TASK_CONTROLLER_PATH;
+import static hexlet.code.controller.TaskStatusController.TASK_STATUS_CONTROLLER_PATH;
+import static hexlet.code.controller.UserController.USER_CONTROLLER_PATH;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
@@ -50,12 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final RequestMatcher authenticatedUrls;
     private final RequestMatcher loginRequest;
     private final UserDetailsService userDetailsService;
-//    private final PasswordEncoder passwordEncoder;
-@Bean
-public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-}
-    @Autowired
     private final PasswordEncoder passwordEncoder;
     private final JWTHelper jwtHelper;
 
@@ -68,25 +60,25 @@ public PasswordEncoder passwordEncoder() {
                 loginRequest,
                 new AntPathRequestMatcher(baseUrl + USER_CONTROLLER_PATH, POST.toString()),
                 new AntPathRequestMatcher(baseUrl + USER_CONTROLLER_PATH, GET.toString()),
-//                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH, GET.toString()),
+                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH, GET.toString()),
                 new NegatedRequestMatcher(new AntPathRequestMatcher(baseUrl + "/**"))
         );
 
         this.authenticatedUrls = new OrRequestMatcher(
-//                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", GET.toString()),
-//                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", POST.toString()),
-//                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", PUT.toString()),
-//                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", DELETE.toString()),
-//
-//                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", GET.toString()),
-//                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", POST.toString()),
-//                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", PUT.toString()),
-//                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", DELETE.toString()),
-//
-//                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", GET.toString()),
-//                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", POST.toString()),
-//                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", PUT.toString()),
-//                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", DELETE.toString())
+                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", GET.toString()),
+                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", POST.toString()),
+                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", PUT.toString()),
+                new AntPathRequestMatcher(baseUrl + TASK_STATUS_CONTROLLER_PATH + "/**", DELETE.toString()),
+
+                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", GET.toString()),
+                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", POST.toString()),
+                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", PUT.toString()),
+                new AntPathRequestMatcher(baseUrl + TASK_CONTROLLER_PATH + "/**", DELETE.toString()),
+
+                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", GET.toString()),
+                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", POST.toString()),
+                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", PUT.toString()),
+                new AntPathRequestMatcher(baseUrl + LABEL_CONTROLLER_PATH + "/**", DELETE.toString())
         );
 
         this.userDetailsService = userDetailsServiceValue;
@@ -136,6 +128,10 @@ public PasswordEncoder passwordEncoder() {
                 .logout().disable();
 
         http.headers().frameOptions().disable();
+
+//        http.exceptionHandling().accessDeniedHandler( (request, response, exception) ->
+//                response.sendError(HttpStatus.UNAUTHORIZED.value(), exception.getMessage()
+//                ));
     }
 
 }

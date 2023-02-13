@@ -52,13 +52,13 @@ public class TaskStatus {
     @Temporal(TIMESTAMP)
     private Date createdAt;
 
-//    @JsonIgnore
-//    @OneToMany(
-//            cascade = CascadeType.ALL,
-//            fetch = FetchType.LAZY,
-//            mappedBy = "taskStatus"
-//    )
-//    private List<Task> tasks;
+    @JsonIgnore
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "taskStatus"
+    )
+    private List<Task> tasks;
 
     public TaskStatus(final Long idValue, String nameValue) {
         this.id = idValue;
@@ -68,12 +68,12 @@ public class TaskStatus {
     /**
      * The method is for prevention of a status deletion when he has tasks associated with.
      */
-//    @PreRemove
-//    public void checkTasksAssociationBeforeRemoval() {
-//        if (this.tasks != null) {
-//            if (!this.tasks.isEmpty()) {
-//                throw new RuntimeException("Can't remove a status that has Tasks.");
-//            }
-//        }
-//    }
+    @PreRemove
+    public void checkTasksAssociationBeforeRemoval() {
+        if (this.tasks != null) {
+            if (!this.tasks.isEmpty()) {
+                throw new RuntimeException("Can't remove a status that has Tasks.");
+            }
+        }
+    }
 }
