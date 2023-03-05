@@ -4,8 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-*.mv.db
-*.trace.db
 
 ### STS ###
 .apt_generated
@@ -38,6 +36,11 @@ out/
 ### VS Code ###
 .vscode/
 
+### Database ###
+*.mv.db
+*.trace.db
+
+### Frontend ###
 node
+frontend/build
 frontend/node_modules
-fronetend/build

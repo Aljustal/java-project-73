@@ -1,9 +1,10 @@
-package hexlet.code.service;
+package hexlet.code.service.implementation;
 
 import hexlet.code.dto.UserDto;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import hexlet.code.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,53 +17,52 @@ import static hexlet.code.config.security.SecurityConfig.DEFAULT_AUTHORITIES;
 
 @Service
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User createNewUser(final UserDto userDto) {
-        final User user = new User();
-        user.setEmail(userDto.getEmail());
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+    public User createNewUser(UserDto dto) {
+        User user = new User();
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         return userRepository.save(user);
     }
 
     @Override
-    public User updateUser(final long id, final UserDto userDto) {
+    public User updateUser(long id, UserDto dto) {
         final User userToUpdate = userRepository.findById(id).get();
-        userToUpdate.setEmail(userDto.getEmail());
-        userToUpdate.setFirstName(userDto.getFirstName());
-        userToUpdate.setLastName(userDto.getLastName());
-        userToUpdate.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        userToUpdate.setEmail(dto.getEmail());
+        userToUpdate.setFirstName(dto.getFirstName());
+        userToUpdate.setLastName(dto.getLastName());
+        userToUpdate.setPassword(passwordEncoder.encode(dto.getPassword()));
         return userRepository.save(userToUpdate);
     }
 
     @Override
-    public Long getCurrentUserId() {
-        return Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+    public String getCurrentUserName() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     @Override
     public User getCurrentUser() {
-        return userRepository.findById(getCurrentUserId()).get();
+        return userRepository.findByEmail(getCurrentUserName()).get();
     }
 
     @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
-                .map(this::buildSpringUser)
-                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'username': " + username));
+                .map(user -> buildSpringUser(user))
+                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'email': " + username));
     }
 
-    private UserDetails buildSpringUser(final User user) {
+    private UserDetails buildSpringUser(User user) {
         return new org.springframework.security.core.userdetails.User(
-                user.getId().toString(),
+                user.getEmail(),
                 user.getPassword(),
                 DEFAULT_AUTHORITIES
         );

@@ -1,19 +1,21 @@
 package hexlet.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LabelDto {
-    private static final int MIN_V = 1;
-
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public final class LabelDto implements Transferable {
     @NotBlank
-    @Size(min = MIN_V)
+    @Size(min = 3, max = 1000)
     private String name;
 }

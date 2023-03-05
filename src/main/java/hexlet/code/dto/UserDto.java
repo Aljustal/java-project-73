@@ -1,5 +1,6 @@
 package hexlet.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +12,8 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private static final int MIN_V = 3;
-    private static final int MAX_V = 100;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+public final class UserDto implements Transferable {
     @NotBlank
     @Email
     private String email;
@@ -26,7 +25,6 @@ public class UserDto {
     private String lastName;
 
     @NotBlank
-    @Size(min = MIN_V, max = MAX_V)
+    @Size(min = 3, max = 1000)
     private String password;
-
 }

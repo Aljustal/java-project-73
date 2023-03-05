@@ -6,40 +6,26 @@ import com.rollbar.spring.webmvc.RollbarSpringConfigBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-
 
 @Configuration()
 @ComponentScan({
-
-// UPDATE TO YOUR PROJECT PACKAGE
-        "hexlet.code.app"
-
+    "hexlet.code.app"
 })
 public class RollbarConfig {
-    @Value("${rollbar_token:}")
-    private String rollbarToken;
+//    @Value("${ROLLBAR_TOKEN}")
+//    private String rollbarToken;
+//    @Value("${spring.profiles.active:}")
+//    private String activeProfile;
 
-    @Value("${spring.profiles.active:}")
-    private String activeProfile;
-
-
-    /**
-     * Return the rollbar configuration.
-     * @return rollbar configuration.
-     */
     @Bean
     public Rollbar rollbar() {
-
-        return new Rollbar(getRollbarConfigs(rollbarToken));
+        return new Rollbar(getRollbarConfigs("7077e9822a80484d9f1870e7f6b96946"));
     }
 
     private Config getRollbarConfigs(String accessToken) {
-
-        // Reference ConfigBuilder.java for all the properties you can set for Rollbar
         return RollbarSpringConfigBuilder.withAccessToken(accessToken)
-                .environment("development")
-                .enabled(activeProfile == "prod")
+                .environment("production")
+//                .enabled(activeProfile.equals("prod"))
                 .build();
     }
 }

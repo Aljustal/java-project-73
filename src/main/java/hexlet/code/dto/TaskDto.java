@@ -1,30 +1,30 @@
 package hexlet.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskDto {
-    private static final int MIN_V = 1;
-
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public final class TaskDto implements Transferable {
     @NotBlank
-    @Size(min = MIN_V)
+    @Size(min = 3, max = 1000)
     private String name;
 
     private String description;
 
-    private Long executorId;
-
-    @NotNull
     private Long taskStatusId;
+
+    private Long executorId;
 
     private Set<Long> labelIds;
 }

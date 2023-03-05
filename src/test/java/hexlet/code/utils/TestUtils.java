@@ -4,69 +4,39 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.component.JWTHelper;
-import hexlet.code.dto.LabelDto;
-import hexlet.code.dto.TaskStatusDto;
-import hexlet.code.dto.UserDto;
-import hexlet.code.model.Label;
-import hexlet.code.model.Task;
-import hexlet.code.model.TaskStatus;
-import hexlet.code.model.User;
+import hexlet.code.dto.Transferable;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
-
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Component
 public class TestUtils {
-
-    public static final String TEST_USERNAME = "email@email.com";
-    public static final String TEST_USERNAME_2 = "email2@email.com";
-    public static final String USER_CONTROLLER_PATH = "/api/users";
-    public static final String TASK_STATUS_CONTROLLER_PATH = "/api/statuses";
-    public static final String TASK_CONTROLLER_PATH = "/api/tasks";
-    public static final String LABEL_CONTROLLER_PATH = "/api/labels";
-    public static final String LOGIN = "/api/login";
-    public static final String ID = "/{id}";
-
-    private final UserDto testRegistrationDto = new UserDto(
-            TEST_USERNAME,
-            "fname",
-            "lname",
-            "pwd"
-    );
-
-    /**
-     * Get the DTO for testing purposes.
-     * @return       UserDto object
-     */
-    public UserDto getTestRegistrationDto() {
-        return testRegistrationDto;
-    }
+    public static final String PATH_TO_FIXTURES = "src/test/resources/fixtures/";
+    public static final String BASE_URL = "/api";
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
+    private JWTHelper jwtHelper;
 
     @Autowired
-    private JWTHelper jwtHelper;
+    private UserRepository userRepository;
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
@@ -77,87 +47,20 @@ public class TestUtils {
     @Autowired
     private LabelRepository labelRepository;
 
-    /**
-     * Delete repositories.
-     */
-    public void tearDown() {
+    public void setUp() {
         taskRepository.deleteAll();
         labelRepository.deleteAll();
         taskStatusRepository.deleteAll();
         userRepository.deleteAll();
     }
 
-    /**
-     * Get User by email.
-     * @param       email - name of a user
-     * @return       User object
-     */
-    public User getUserByEmail(final String email) {
-        return userRepository.findByEmail(email).get();
-    }
-
-    /**
-     * Create the default user.
-     * @return       result of creating action
-     */
-    public ResultActions regDefaultUser() throws Exception {
-        return regUser(testRegistrationDto);
-    }
-
-    /**
-     * Registering the user provided in the param.
-     * @param       dto - name of a user
-     * @return       result data
-     */
-    public ResultActions regUser(final UserDto dto) throws Exception {
-        final var request = post(USER_CONTROLLER_PATH)
-                .content(asJson(dto))
-                .contentType(APPLICATION_JSON);
-
-        return perform(request);
-    }
-
-    /**
-     * Create the token.
-     * @param       userId - id of a user
-     * @return       token.
-     */
-    public String buildToken(Object userId) {
-        return jwtHelper.expiring(Map.of(SPRING_SECURITY_FORM_USERNAME_KEY, userId));
-    }
-
-    /**
-     * The base method of adding resource handlers.
-     * @param       request - the request
-     * @param       byUser - string data of user
-     * @return       system userDetails object
-     */
     public ResultActions perform(final MockHttpServletRequestBuilder request, final String byUser) throws Exception {
-        final Long userId = userRepository.findByEmail(byUser)
-                .map(User::getId)
-                .orElse(null);
-
-        final String token = buildToken(userId);
-        return performWithToken(request, token);
-    }
-
-    /**
-     * Performs the request.
-     * @param       request - the request
-     * @param       token - token
-     * @return       The result of an action using token
-     */
-    public ResultActions performWithToken(final MockHttpServletRequestBuilder request,
-                                          final String token) throws Exception {
+        final String token = jwtHelper.expiring(Map.of("username", byUser));
         request.header(AUTHORIZATION, token);
+
         return perform(request);
     }
 
-    /**
-     * Peform the request without authentication.
-     * @param       request - the request
-     * @return       The result of an action
-     */
     public ResultActions perform(final MockHttpServletRequestBuilder request) throws Exception {
         return mockMvc.perform(request);
     }
@@ -168,74 +71,35 @@ public class TestUtils {
         return MAPPER.writeValueAsString(object);
     }
 
-    public static <T> T fromJson(final String json, final TypeReference<T> to) throws JsonProcessingException {
-        return MAPPER.readValue(json, to);
+    public static <T> T fromJson(final String json, final TypeReference<T> to) {
+        try {
+            return MAPPER.readValue(json, to);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    /**
-     * Posts new task on behalfe of a user.
-     * @param       txt - task Label
-     * @param       userName - task Label
-     * @return       The result of an action
-     */
-    public TaskStatus postNewStatus(String txt, String userName) throws Exception {
-        final var taskStatusDto = new TaskStatusDto(txt);
-
-        final var response = perform(
-                MockMvcRequestBuilders.post(TestUtils.TASK_STATUS_CONTROLLER_PATH)
-                        .content(TestUtils.asJson(taskStatusDto))
-                        .contentType(APPLICATION_JSON),
-                userName
-        ).andExpect(status().isCreated())
-                .andReturn()
-                .getResponse();
-
-        TaskStatus status = TestUtils.fromJson(response.getContentAsString(), new TypeReference<>() {
-        });
-
-        return status;
+    public static String readFixtureJson(String path) {
+        try {
+            return Files.readString(Path.of(PATH_TO_FIXTURES + path).toAbsolutePath().normalize());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    /**
-     * Posts new task on behalfe of a user.
-     * @param       txt - task Label
-     * @param       userName - task Label
-     * @return       The result of an action
-     */
-    public Label postNewLabel(String txt, String userName) throws Exception {
-        final var labelDto = new LabelDto(txt);
+    public ResultActions regEntity(Transferable dto, String byUser, String path) throws Exception {
+        final var request = post(BASE_URL + path)
+                .content(asJson(dto))
+                .contentType(APPLICATION_JSON);
 
-        final var response = perform(
-                MockMvcRequestBuilders.post(TestUtils.LABEL_CONTROLLER_PATH)
-                        .content(TestUtils.asJson(labelDto))
-                        .contentType(APPLICATION_JSON),
-                userName
-        ).andExpect(status().isCreated())
-                .andReturn()
-                .getResponse();
-
-        Label label = TestUtils.fromJson(response.getContentAsString(), new TypeReference<>() {
-        });
-
-        return label;
+        return perform(request, byUser);
     }
 
-    /**
-     * Posts new task on behalfe of a user.
-     * @param       queryStr - query string
-     * @param       userName - task Label
-     * @return       The list of a task
-     */
-    public List<Task> getAllTasks(String queryStr, String userName) throws Exception {
-        final var response = perform(get(queryStr), userName)
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse();
+    public ResultActions regEntity(Transferable dto, String path) throws Exception {
+        final var request = post(BASE_URL + path)
+                .content(asJson(dto))
+                .contentType(APPLICATION_JSON);
 
-        final List<Task> tasks = TestUtils.fromJson(response.getContentAsString(), new TypeReference<>() {
-        });
-
-        return tasks;
+        return perform(request);
     }
-
 }

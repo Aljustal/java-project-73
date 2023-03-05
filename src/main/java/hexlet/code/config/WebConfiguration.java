@@ -14,14 +14,10 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     private final String baseApiPath;
 
-    public WebConfiguration(@Value("${base-url}") String baseApiPathVar) {
-        this.baseApiPath = baseApiPathVar;
+    public WebConfiguration(@Value("${base-url}") String baseApiPath) {
+        this.baseApiPath = baseApiPath;
     }
 
-    /**
-     * The base method of adding resource handlers.
-     * @param       registry is being added (of type ResourceHandlerRegistry)
-     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry
@@ -43,7 +39,6 @@ public class WebConfiguration implements WebMvcConfigurer {
                         if (resourcePath.startsWith(baseApiPath) || resourcePath.startsWith(baseApiPath.substring(1))) {
                             return null;
                         }
-
                         return location.exists() && location.isReadable() ? location : null;
                     }
                 });

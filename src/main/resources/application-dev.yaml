@@ -1,0 +1,27 @@
+server:
+  error:
+    include-stacktrace: on_param
+
+spring:
+  datasource:
+    username: ""
+    password: ""
+    url: "jdbc:h2:./taskTracker"
+
+    show-sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2console
+      settings:
+        web-allow-others: true
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+logging:
+  level:
+    root: INFO
+    web: DEBUG
